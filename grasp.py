@@ -105,7 +105,7 @@ except:
 
 
 class GraspPlanning:
-    def __init__(self,robot,randomize=True,dests=None,nodestinations=False,switchpatterns=None,plannername=None,minimumgoalpaths=1):
+    def __init__(self,robot,randomize=True,dests=None,nodestinations=False,switchpatterns=None,plannername=None,minimumgoalpaths=1, table='table'):
         self.envreal = robot.GetEnv()
         self.robot = robot
         self.plannername=plannername
@@ -161,7 +161,7 @@ class GraspPlanning:
             
             #find target dests    #sam
             if dests is None and not self.nodestinations:
-                tablename = 'table'
+                tablename = table
                 table = self.envreal.GetKinBody(tablename)
                 if table is not None:
                     alltargets = [graspable[0].target for graspable in self.graspables]
@@ -299,8 +299,8 @@ class GraspPlanning:
         approachoffset = 0.02 if self.ikmodel.iktype == IkParameterization.Type.Transform6D else 0.0
         target = gmodel.target
         stepsize = 0.001
-        print 'gmodel.grasps',len(gmodel.grasps)
-        time.sleep(5)
+        #print 'gmodel.grasps',len(gmodel.grasps) #sam
+        
         while istartgrasp < len(gmodel.grasps):
             goals,graspindex,searchtime,trajdata = self.taskmanip.GraspPlanning(gmodel=gmodel,grasps=gmodel.grasps[istartgrasp:], approachoffset=approachoffset,destposes=dests, seedgrasps = 3,seeddests=8,seedik=1,maxiter=1000, randomgrasps=self.randomize,randomdests=self.randomize)
             istartgrasp = graspindex+1
@@ -427,8 +427,7 @@ class GraspPlanning:
         approachoffset = 0.02 if self.ikmodel.iktype == IkParameterization.Type.Transform6D else 0.0
         target = gmodel.target
         stepsize = 0.001
-        print 'gmodel.grasps',len(gmodel.grasps)
-        time.sleep(5)
+        
         while istartgrasp < len(gmodel.grasps):
             goals,graspindex,searchtime,trajdata = self.taskmanip.GraspPlanning(gmodel=gmodel,grasps=gmodel.grasps[istartgrasp:], approachoffset=approachoffset,destposes=dests, seedgrasps = 3,seeddests=8,seedik=1,maxiter=1000, randomgrasps=self.randomize,randomdests=self.randomize)
             istartgrasp = graspindex+1
@@ -481,77 +480,106 @@ class GraspPlanning:
         # exhausted all grasps
         return -1, goals, graspindex
 
-    def putObject(self,gmodel,goals,graspindex, **kwargs):
+    def putObject(self,gmodel,goals,graspindex, tgoal='ashtable', movehanddown=True, **kwargs):
         """put an object """
         env = self.envreal#.CloneSelf(CloningOptions.Bodies)
         robot = self.robot
         istartgrasp = 0
-        while istartgrasp < len(gmodel.grasps):
-            istartgrasp = graspindex+1
-            grasp = gmodel.grasps[graspindex]
-            Tglobalgrasp = gmodel.getGlobalGraspTransform(grasp,collisionfree=True)
-            self.waitrobot(robot)
-            if len(goals) > 0:
-                print 'planning to destination'
-                try:
-                    self.basemanip.MoveToHandPosition(translation=self.envreal.GetKinBody('ashcan').GetTransform())
-                    self.waitrobot(robot)
-                except planning_error,e:
-                    print 'failed to reach a goal, trying to move goal a little up',e
-                    if goals[0].GetType() == IkParameterizationType.Transform6D:
-                        Tgoal = goals[0].GetTransform6D()
-                        Tgoal[0:3,3] += self.updir*0.015
-                        try:
-                            self.basemanip.MoveToHandPosition(matrices=[Tgoal],maxiter=3000,maxtries=2,seedik=8)
-                            self.waitrobot(robot)
-                            self.basemanip.MoveToHandPosition(ikparams=goals,maxiter=2000,maxtries=2,seedik=8)
-                            self.waitrobot(robot)
-                        except planning_error,e:
-                            print e
-                            success = -1
-            if movehanddown:
-                print 'moving hand down'
-                try:
-                    res = self.basemanip.MoveHandStraight(direction=-self.updir,stepsize=0.003,minsteps=1,maxsteps=100)
-                except:
-                    print 'failed to move hand down'
-                self.waitrobot(robot)
-
+        target = gmodel.target
+        stepsize = 0.001
+        success = graspindex
+        #sam: get target dests from target env kinbody
+        t=env.GetKinBody(tgoal)
+        Tgoal=t.GetTransform()
+        print 'Tgoal', Tgoal
+        Tgoal[0][0] = 0
+        Tgoal[1][1] = 0
+        Tgoal[1][0] = -1
+        Tgoal[0][1] = -1
+        Tgoal[2][2] = -1
+        #Tgoal[0][3] += 0.1
+        #Tgoal[1][3] -= 0.1
+        Tgoal[2][3] += 0.1   #sam: 
+        print 'revise Tgoal', Tgoal
+        #time.sleep(10)
+        #######################################
+        #while istartgrasp < len(gmodel.grasps):
+        istartgrasp = graspindex+1
+        grasp = gmodel.grasps[graspindex]
+        Tglobalgrasp = gmodel.getGlobalGraspTransform(grasp,collisionfree=True)
+        self.waitrobot(robot)
+        if len(goals) > 0:
+            print 'planning to destination'
             try:
-                res = self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
-            except planning_error:
-                res = None
-            if res is None:
-                print 'problems releasing, releasing target first'
-                with env:
-                    robot.ReleaseAllGrabbed()
+                self.basemanip.MoveToHandPosition(matrices=[Tgoal],maxiter=2000,maxtries=2,seedik=8)
+                self.waitrobot(robot)
+                    
+            except planning_error,e:
+                print 'failed to reach a goal, trying to move goal a little up',e
+                if goals[0].GetType() == IkParameterizationType.Transform6D:
+                    Tgoal = goals[0].GetTransform6D()
+                    Tgoal[0:3,3] += self.updir*0.015
                     try:
-                        res = self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
-                    except planning_error:
-                        res = None
-                if res is None:
-                    print 'forcing fingers'
-                    with env:
-                        robot.SetDOFValues(gmodel.grasps[graspindex][gmodel.graspindices['igrasppreshape']],gmodel.manip.GetGripperIndices())
+                        self.basemanip.MoveToHandPosition(matrices=[Tgoal],maxiter=3000,maxtries=2,seedik=8)
+                        self.waitrobot(robot)
+                           
+                        self.basemanip.MoveToHandPosition(ikparams=goals,maxiter=2000,maxtries=2,seedik=8)
+                        self.waitrobot(robot)
+                            
+                    except planning_error,e:
+                        print e
+                        success = -1
+                            
+        if movehanddown:
+            print 'moving hand down'
+            try:
+                res = self.basemanip.MoveHandStraight(direction=-self.updir,stepsize=0.003,minsteps=1,maxsteps=100)
+                   
+            except:
+                print 'failed to move hand down'
             self.waitrobot(robot)
+            
+        try:
+            res = self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
+                
+        except planning_error:
+            res = None
+        
+        if res is None:
+            print 'problems releasing, releasing target first'
             with env:
                 robot.ReleaseAllGrabbed()
-            if env.CheckCollision(robot):
-                print 'robot in collision, moving back a little'
                 try:
-                    self.basemanip.MoveHandStraight(direction=-dot(gmodel.manip.GetTransform()[0:3,0:3],gmodel.manip.GetDirection()), stepsize=stepsize,minsteps=1,maxsteps=10)
-                    self.waitrobot(robot)
-                except planning_error,e:
-                    pass
-                if env.CheckCollision(robot):
-                    try:
-                        self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
-                    except planning_error:
-                        res = None
-                    #raise ValueError('robot still in collision?')
+                    res = self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
+                       
+                except planning_error:
+                    res = None
+            if res is None:
+                print 'forcing fingers'
+                with env:
+                    robot.SetDOFValues(gmodel.grasps[graspindex][gmodel.graspindices['igrasppreshape']],gmodel.manip.GetGripperIndices())
+        self.waitrobot(robot)
+            
+        with env:
+            robot.ReleaseAllGrabbed()
+        if env.CheckCollision(robot):
+            print 'robot in collision, moving back a little'
+            try:
+                self.basemanip.MoveHandStraight(direction=-dot(gmodel.manip.GetTransform()[0:3,0:3],gmodel.manip.GetDirection()), stepsize=stepsize,minsteps=1,maxsteps=10)
+                self.waitrobot(robot)
+                   
+            except planning_error,e:
+                pass
+            if env.CheckCollision(robot):
+                try:
+                    self.taskmanip.ReleaseFingers(target=target,translationstepmult=gmodel.translationstepmult,finestep=gmodel.finestep)
+                        
+                except planning_error:
+                    res = None
+                #raise ValueError('robot still in collision?')
 
-            if success >= 0:
-                return success # return successful grasp index
+        if success >= 0:
+            return success # return successful grasp index
             
         # exhausted all grasps
         return -1
@@ -567,7 +595,7 @@ class GraspPlanning:
         while True:
             if len(graspables) == 0 or failures > len(graspables)+1:
                 if withreplacement:
-                    time.sleep(4)
+                    #time.sleep(4)
                     self.randomizeObjects()
                     graspables = self.graspables[:]
                 else:
