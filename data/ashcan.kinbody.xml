@@ -1,0 +1,9 @@
+<KinBody name="ashcan">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/objects/cup.iv 0.006</Data>
+      <Render>models/objects/cup.iv 0.006</Render>
+    </Geom>      
+  </Body>
+</KinBody>

@@ -53,7 +53,10 @@ class SimpleNavigationPlanning:
         des_target = self.env.GetKinBody(self.dests) #sam
         go_target = des_target.GetTransform()
         goal = go_target[0:3,3]
-        goal[0]=goal[0]-0.8
+        if self.dests =='ashcan':
+            goal[0]=goal[0]-0.8
+        else:
+            goal[0]=goal[0]-1
        
         with self.env:
             self.robot.SetAffineTranslationLimits(envmin,envmax)

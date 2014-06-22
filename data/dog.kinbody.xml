@@ -1,0 +1,9 @@
+<KinBody name="dog">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/objects/dog.wrl</Data>
+      <Render>models/objects/dog.wrl</Render>
+    </Geom>      
+  </Body>
+</KinBody>

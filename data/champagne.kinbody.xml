@@ -1,0 +1,9 @@
+<KinBody name="champagne">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/objects/champagne.iv</Data>
+      <Render>models/objects/champagne.iv</Render>
+    </Geom>      
+  </Body>
+</KinBody>

@@ -32,17 +32,22 @@ def main(env,options):
     robot = env.GetRobots()[0]
     env.UpdatePublishedBodies()
     time.sleep(0.1) # give time for environment to update
+    print "run grasping"
+    time.sleep(5)
     import grasp as gp
     robot_gp = gp.GraspPlanning(robot,randomize=options.randomize,nodestinations=options.nodestinations,plannername=options.planner,table='table')
     c_target,n_target = check_object(robot_gp)
+    #print 'c_target',c_target
+    #print 'n_target',n_target
     #sam: first grasp mug and place it
     #for t in c_target:
     #    success = robot_gp.graspAndPlaceObject(t[0], t[1])
     
     #sam: second grasp target, move to ashcan, place it
-    #robot_gp = gp.GraspPlanning(robot,randomize=options.randomize,nodestinations=options.nodestinations,plannername=options.planner,table='ashtable')
-    c_target,n_target = check_object(robot_gp)
-    for t in n_target:
+    #robot_gp = gp.GraspPlanning(robot,randomize=options.randomize,nodestinations=options.nodestinations,plannername=options.planner,table='plate')
+    #c_target,n_target = check_object(robot_gp)
+    for t in c_target:
+        #print "grasping",t
         success, goals, graspindex = robot_gp.graspObject(t[0], t[1])
         import navig as ng
         robot_ng = ng.SimpleNavigationPlanning(robot=robot, dests='ashcan') 
@@ -52,6 +57,13 @@ def main(env,options):
         success = robot_gp.putObject(t[0], goals, graspindex, tgoal='ashtable')
     #robot_gp.performGraspPlanning(withreplacement=options.testmode)
     #robot_gp.performGraspPlanning(withreplacement=not options.testmode)   #sam repeat run
+        #sam: come back
+        #robot_ng = ng.SimpleNavigationPlanning(robot=robot, dests='rolly-table') 
+        #print 'Navigation planning '
+        #robot_ng.performNavigationPlanning()
+        #print 'goals', goals
+
+    print 'task over'
     time.sleep(5)
 from optparse import OptionParser
 from openravepy.misc import OpenRAVEGlobalArguments

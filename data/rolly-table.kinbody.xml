@@ -1,0 +1,9 @@
+<KinBody name="rolly-table">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/furniture/rolly-table.iv</Data>
+      <Render>models/furniture/rolly-table.iv</Render>
+    </Geom>      
+  </Body>
+</KinBody>

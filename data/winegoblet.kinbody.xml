@@ -1,0 +1,9 @@
+<KinBody name="winegoblet">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/objects/winegoblet.iv</Data>
+      <Render>models/objects/winegoblet.iv</Render>
+    </Geom>      
+  </Body>
+</KinBody>

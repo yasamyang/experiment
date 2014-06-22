@@ -1,0 +1,96 @@
+<KinBody name="TestKinBody">
+  <!-- Create a rigid body named Body1 and declare it as 'dynamic'.-->
+  <!-- 'dynamic' bodies are subject to physics laws, 'static' bodies will never move-->
+  <!-- due to physical forces. It is recommended EVERYTHING is declared as 'dynamic' -->
+  <Body name="Body1" type="dynamic">
+    <!-- Note that the body transforms affects all geometry objects attached. -->
+ 
+    <!-- translation of the body-->
+    <Translation>0 0 0</Translation>
+    <!--rotation of the body specified as a rotation axis. First three numbers are the axis.-->
+    <RotationAxis>1 0 0 90</RotationAxis>
+ 
+    <!-- defines mass properties for the entire kinbody. possible mass types are-->
+    <!-- mimicgeom - <density>. Adds a mass equivalent to all the geometry-->
+    <!--    objects. trimesh and plane are not supported.-->
+    <!-- box - <density>(or <mass>), <extents> Adds a simple box-->
+    <!-- sphere - <density>(or <mass>), <radius>-->
+    <Mass type="mimicgeom">
+      <density>1000</density>
+    </Mass>
+ 
+    <!-- Define a geometry object attached to the body. The functionality of -->
+    <!-- geometry objects is to define the collision and render geometries of the body. -->
+    <!-- All geometry types have Rotation(Mat/Quat), Translation, and Render components.-->
+    <!-- Possible geom types are box, sphere, trimesh, plane.-->
+    <!--  *box - extents-->
+    <!--  *sphere - radius-->
+    <!--  *cylinder - radius, height (axis is along y)-->
+    <!--  *trimesh - data-->
+    <Geom type="box">
+      <!-- extents of the box - half width, height, length-->
+      <Extents>1 1 1</Extents>
+      <!-- set the translation and rotation of the box. Note that the transforamtions-->
+      <!-- are all relative to the parent body.-->
+      <Translation>1 0 0</Translation>
+      <RotationAxis>0 1 0 45</RotationAxis>
+    </Geom>
+    <!-- Can create multiple geometries per body-->
+    <Geom type="box">
+      <Extents>2 1 2</Extents>
+      <Translation>0 1 0</Translation>
+      <!-- RotationMat is a 3x3 rotation matrix specified as rows first-->
+      <RotationMat>1 0 0 0 1 0 0 0 1</RotationMat>
+      <!-- Set the transparency of the geometry, 0 is opaque-->
+      <transparency>0.4</transparency>
+    </Geom>
+  </Body>
+ 
+  <Body name="Body2" type="dynamic">
+    <!-- change the mass properties of the body-->
+    <Mass type="mimicgeom">
+      <!-- specify the total mass-->
+      <total>0.40605</total>
+      <!-- specify the 3x3 inertia matrix-->
+      <inertia>2 0 0 0 3 0 0 0 5</inertia>
+      <!-- specify the center of mass (if using ODE physics engine, should be 0)-->
+      <com>0.008842 -0.000018 0.07367</com>
+    </Mass>
+    <!-- create a sphere-->
+    <Geom type="sphere">
+      <!-- although the underlying collision geometry will be a sphere,-->
+      <!-- render it as a coffee pot-->
+      <Render>models/objects/coffeepot.iv</Render>
+      <Translation>0 -1.5 0</Translation>
+      <Radius>1.5</Radius>
+    </Geom>
+    <!-- create a triangle mesh-->
+    <Geom type="trimesh">
+      <Render>models/objects/cup.iv 0.01</Render>
+      <!-- use the cup triangles for collision detection.-->
+      <!-- The last number is the scale, in case the iv files are scaled improperly.-->
+      <collision>models/objects/cup.iv 0.01</collision>
+      <Translation>1.5 -2 0</Translation>
+    </Geom>
+  </Body>
+ 
+  <!-- Create a joint between the two bodies.-->
+  <!-- Possible joint types are: hinge, slider, universal, hinge2, and spherical.-->
+  <!-- Hinges are the most common joint type used in robots.-->
+  <!-- For amotors, can specify mode, axis1, axis2, axis3. For each axis, first 3 values are the axis and the last value is the relative coord system (see ODE documentation).-->
+  <!-- Every joint can have certain properties:-->
+  <!-- <maxforce> are in number of degrees of freedom.-->
+  <!-- <maxvel>, <resolution> are scalar and apply to all DOFs.-->
+  <!-- <limits>, <limitsdeg>, <limitsrad> specify the joint limits -->
+  <Joint name="j1" type="hinge">
+    <!-- Specify the names of the bodies, names are not case sensitive.-->
+    <Body>Body1</Body>
+    <Body>Body2</Body>
+    <!-- anchor and axis of the hinge-->
+    <Anchor>0 0 0</Anchor>
+    <Axis>0 1 0</Axis>
+    <!-- Weight for configuration distance, mostly used in planners.-->
+    <!-- for joints with > 1 DOF, specify 2+ values-->
+    <Weight>1.0</Weight>
+  </Joint>
+</KinBody>

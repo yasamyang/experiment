@@ -1,0 +1,105 @@
+<KinBody name="Cabinet">
+  <Body name="base" type="dynamic">
+    <!-- horizontal shelf -->
+    <Geom type="box">
+      <Translation>0 0 0.3</Translation>
+      <extents>0.121 0.331 0.02</extents>
+      <diffusecolor>0.8 0.4 0.1</diffusecolor>
+    </Geom>
+    <Geom type="box">
+      <Translation> 0 0 -0.12</Translation>
+      <extents>0.121 0.331 0.02</extents>
+      <diffusecolor>0.8 0.4 0.1</diffusecolor>
+    </Geom>
+    <!-- vertical -->
+    <Geom type="box">
+      <Translation>0 0.322 0.1</Translation>
+      <extents>0.121 0.009 0.2</extents>
+      <diffusecolor>0.8 0.4 0.1</diffusecolor>
+    </Geom>
+    <Geom type="box">
+      <Translation>0 -0.322 0.1</Translation>
+      <extents>0.121 0.009 0.2</extents>
+      <diffusecolor>0.8 0.4 0.1</diffusecolor>
+    </Geom>
+    <Geom type="box">
+      <Translation>-0.12 0 0.1</Translation>
+      <extents>0.001 0.331 0.2</extents>
+      <diffusecolor>0.8 0.4 0.1</diffusecolor>
+    </Geom>
+  </Body>
+  <Body name="door-right" type="dynamic">
+    <Geom type="box">
+      <translation>0.264 0.32 0.1</translation>
+      <extents>0.011 0.1625 0.2</extents>
+      <diffusecolor>0.8 0.6 0</diffusecolor>
+<rotationaxis>0 0 1 90</rotationaxis>
+    </Geom>
+    
+    <!-- handle 2 -->
+    <Geom type="cylinder">
+      <translation>0.393 0.341 0.1125</translation>
+      <radius>0.004</radius>
+      <height>0.108</height>
+      <rotationaxis>1 0 0 90</rotationaxis>
+    </Geom>
+    <Geom type="cylinder">
+      <translation>0.393 0.341 0.163</translation>
+      <radius>0.004</radius>
+      <height>0.03</height>
+      <rotationaxis>0 0 1 180</rotationaxis>
+    </Geom>
+    <Geom type="cylinder">
+      <translation>0.393 0.341 0.062</translation>
+      <radius>0.004</radius>
+      <height>0.03</height>
+      <rotationaxis>0 0 1 180</rotationaxis>
+    </Geom>
+    
+  </Body>
+    <Body name="door-left" type="dynamic">
+    <Geom type="box">
+      <translation>0.132 -0.168 0.1</translation>
+      <extents>0.011 0.1625 0.2</extents>
+      <diffusecolor>0.8 0.6 0</diffusecolor>
+    </Geom>
+    
+    <!-- handle 2 -->
+    <Geom type="cylinder">
+      <translation>0.173 -0.041 0.1125</translation>
+      <radius>0.004</radius>
+      <height>0.108</height>
+      <rotationaxis>1 0 0 90</rotationaxis>
+    </Geom>
+    <Geom type="cylinder">
+      <translation>0.158 -0.041 0.163</translation>
+      <radius>0.004</radius>
+      <height>0.03</height>
+      <rotationaxis>0 0 1 90</rotationaxis>
+    </Geom>
+    <Geom type="cylinder">
+      <translation>0.158 -0.041 0.062</translation>
+      <radius>0.004</radius>
+      <height>0.03</height>
+      <rotationaxis>0 0 1 90</rotationaxis>
+    </Geom>
+  </Body>
+  <Joint name="J_right" type="hinge">
+    <body>base</body>
+    <body>door-right</body>
+    <lostop>0</lostop>
+    <histop>90</histop>
+    <axis>0 0 -1</axis>
+    <anchor>0.146 0.31 0.2</anchor>
+  </Joint>
+  <Joint name="J_left" type="hinge">
+    <body>base</body>
+    <body>door-left</body>
+    <lostop>0</lostop>
+    <histop>90</histop>
+    <axis>0 0 1</axis>
+    <anchor>0.146 -0.31 0.2</anchor>
+  </Joint>
+
+  <adjacent>door-left door-right</adjacent>
+</KinBody>

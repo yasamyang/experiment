@@ -1,0 +1,9 @@
+<KinBody name="bowl">
+  <RotationAxis>1 0 0 90</RotationAxis>
+  <Body name = "base" type="dynamic">
+    <Geom type="trimesh">
+      <Data>models/objects/bowl2.iv 0.001</Data>
+      <Render>models/objects/bowl2.iv0.001</Render>
+    </Geom>      
+  </Body>
+</KinBody>
